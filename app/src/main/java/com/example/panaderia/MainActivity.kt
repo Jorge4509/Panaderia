@@ -1,12 +1,12 @@
 package com.example.panaderia
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -27,7 +27,7 @@ import com.example.panaderia.presentation.register.RegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +58,9 @@ fun MainNavigation() {
                 viewModel = viewModel,
                 onNavigateToRegister = {
                     navController.navigate("register")
+                },
+                onNavigateToAdminAuth = {
+                    navController.navigate("admin_auth")
                 }
             )
         }
@@ -67,9 +70,6 @@ fun MainNavigation() {
                 viewModel = viewModel,
                 onNavigateToLogin = {
                     navController.popBackStack()
-                },
-                onNavigateToAdminAuth = {
-                    navController.navigate("admin_auth")
                 }
             )
         }
@@ -84,7 +84,7 @@ fun MainNavigation() {
                 },
                 onNavigateBackToLogin = {
                     navController.navigate("login") {
-                        popUpTo("register") { inclusive = true }
+                        popUpTo("login") { inclusive = true }
                     }
                 }
             )

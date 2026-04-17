@@ -24,9 +24,9 @@ class AdminAuthViewModel @Inject constructor(
     private val _authState = MutableStateFlow<AuthState>(AuthState.Idle)
     val authState = _authState.asStateFlow()
 
-    fun authenticateAdmin(onSuccess: () -> Unit) {
+    fun authenticateAdmin(activity: Any, onSuccess: () -> Unit) {
         _authState.value = AuthState.Loading
-        authManager.authenticate { success ->
+        authManager.authenticate(activity) { success ->
             if (success) {
                 vibratorManager.vibrateSuccess()
                 _authState.value = AuthState.Success

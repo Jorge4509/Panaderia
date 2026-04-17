@@ -1,6 +1,7 @@
 package com.example.panaderia.presentation.login
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -17,12 +18,13 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel,
-    onNavigateToRegister: () -> Unit
+    onNavigateToRegister: () -> Unit,
+    onNavigateToAdminAuth: () -> Unit
 ) {
     val orangeColor = Color(0xFFFF8C00)
     val lightOrange = Color(0xFFFFF5E6)
     val yellowField = Color(0xFFFFE082)
-    
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -65,8 +67,8 @@ fun LoginScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     TextField(
-                        value = "",
-                        onValueChange = {},
+                        value = viewModel.username,
+                        onValueChange = { viewModel.username = it },
                         placeholder = { Text("Usuario") },
                         modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.colors(
@@ -81,8 +83,8 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     TextField(
-                        value = "",
-                        onValueChange = {},
+                        value = viewModel.password,
+                        onValueChange = { viewModel.password = it },
                         placeholder = { Text("Contraseña") },
                         modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.colors(
@@ -106,7 +108,7 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                     
                     Button(
-                        onClick = { viewModel.onLoginClick() },
+                        onClick = { viewModel.loginWithPassword() },
                         colors = ButtonDefaults.buttonColors(containerColor = orangeColor),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -122,10 +124,20 @@ fun LoginScreen(
                         )
                     }
 
+                    // Texto clickable para Admin
+                    Text(
+                        text = "¿Iniciar sesión como admin?",
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .clickable { onNavigateToAdminAuth() },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+
                     // Botón "¿Desea Registrarse?"
                     TextButton(
                         onClick = onNavigateToRegister,
-                        modifier = Modifier.padding(top = 8.dp)
+                        modifier = Modifier.padding(top = 4.dp)
                     ) {
                         Text(
                             text = "¿Desea Registrarse?",

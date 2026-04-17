@@ -20,6 +20,7 @@ data class ProductFormState(
     val name: String = "",
     val quantity: String = "",
     val price: String = "",
+    val category: String = "Artesanal",
     val imageUri: Uri? = null,
     val isLoading: Boolean = false,
     val isSaved: Boolean = false
@@ -52,6 +53,7 @@ class ProductFormViewModel @Inject constructor(
                     name = product.name,
                     quantity = product.quantity.toString(),
                     price = product.price.toString(),
+                    category = product.category,
                     imageUri = product.imageUri?.let { Uri.parse(it) }
                 ) }
             }
@@ -68,6 +70,12 @@ class ProductFormViewModel @Inject constructor(
 
     fun onPriceChange(newPrice: String) {
         _state.update { it.copy(price = newPrice) }
+    }
+
+    fun onCategoryChange(newCategory: String) {
+        _state.update { it.copy(category = newCategory) }
+        // Vibración al seleccionar categoría como respuesta táctil
+        vibratorManager.vibrateSuccess()
     }
 
     fun getNewImageUri(): Uri {
@@ -92,6 +100,7 @@ class ProductFormViewModel @Inject constructor(
                 name = currentState.name,
                 quantity = currentState.quantity.toIntOrNull() ?: 0,
                 price = currentState.price.toDoubleOrNull() ?: 0.0,
+                category = currentState.category,
                 imageUri = currentState.imageUri?.toString()
             )
             

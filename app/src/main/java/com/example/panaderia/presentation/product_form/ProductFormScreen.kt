@@ -8,8 +8,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddAPhoto
@@ -35,6 +37,10 @@ fun ProductFormScreen(
 ) {
     val state by viewModel.state.collectAsState()
     var tempImageUri by remember { mutableStateOf<Uri?>(null) }
+    
+    // Estados para el Dropdown
+    var expanded by remember { mutableStateOf(false) }
+    val categories = listOf("Artesanal", "Pan dulce", "Especial", "Integral")
 
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
@@ -74,6 +80,7 @@ fun ProductFormScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .background(Color(0xFFFEF9E7))
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
             Text(
@@ -148,17 +155,62 @@ fun ProductFormScreen(
                         keyboardType = KeyboardType.Decimal
                     )
 
+                    // Campo de Categoría con Dropdown
+                    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                        Text("Categoria", style = MaterialTheme.typography.bodySmall)
+                        ExposedDropdownMenuBox(
+                            expanded = expanded,
+                            onExpandedChange = { expanded = !expanded },
+                            modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+                        ) {
+                            TextField(
+                                value = state.category,
+                                onValueChange = {},
+                                readOnly = true,
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                                modifier = Modifier.menuAnchor().fillMaxWidth(),
+                                colors = TextFieldDefaults.colors(
+                                    unfocusedContainerColor = Color(0xFFF2F2F2),
+                                    focusedContainerColor = Color(0xFFF2F2F2),
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                    focusedIndicatorColor = Color.Transparent
+                                ),
+                                shape = RoundedCornerShape(4.dp)
+                            )
+
+                            ExposedDropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false },
+                                modifier = Modifier.background(Color.White)
+                            ) {
+                                categories.forEach { category ->
+                                    DropdownMenuItem(
+                                        text = { Text(category) },
+                                        onClick = {
+                                            viewModel.onCategoryChange(category)
+                                            expanded = false
+                                        },
+                                        modifier = Modifier
+                                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(if(state.category == category) Color(0xFFFFE082) else Color.Transparent)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
                         onClick = viewModel::saveProduct,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(50.dp),
+                            .height(56.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8E23)),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("Registrar Venta", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text("Registrar Venta", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     }
                 }
             }
