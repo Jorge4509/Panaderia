@@ -1,11 +1,14 @@
 package com.example.panaderia.di
 
 import android.content.Context
-import com.example.panaderia.data.MockUserRepository
+import com.example.panaderia.data.repository.MockUserRepository
 import com.example.panaderia.data.hardware.*
+import com.example.panaderia.data.repository.CartRepositoryImpl
 import com.example.panaderia.data.repository.ProductRepositoryImpl
-import com.example.panaderia.domain.IUserRepository
+import com.example.panaderia.domain.repository.IUserRepository
 import com.example.panaderia.domain.hardware.*
+import com.example.panaderia.domain.repository.ICartRepository
+import com.example.panaderia.domain.repository.ICustomerProductRepository
 import com.example.panaderia.domain.repository.ProductRepository
 import dagger.Module
 import dagger.Provides
@@ -40,5 +43,13 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideProductRepository(): ProductRepository = ProductRepositoryImpl()
+    fun provideProductRepository(impl: ProductRepositoryImpl): ProductRepository = impl
+
+    @Provides
+    @Singleton
+    fun provideCustomerRepository(impl: ProductRepositoryImpl): ICustomerProductRepository = impl
+
+    @Provides
+    @Singleton
+    fun provideCartRepository(impl: CartRepositoryImpl): ICartRepository = impl
 }

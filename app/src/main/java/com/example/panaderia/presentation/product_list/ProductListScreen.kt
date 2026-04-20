@@ -13,9 +13,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,8 +34,17 @@ fun ProductListScreen(
     onEditProduct: (String) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(state.message) {
+        state.message?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearMessage()
+        }
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("Lista de productos", color = Color.White) },
@@ -119,7 +126,8 @@ fun ProductListScreen(
                     ProductItem(
                         product = product,
                         onEdit = { onEditProduct(product.id) },
-                        onDelete = { viewModel.deleteProduct(product.id) }
+                        onDelete = { viewModel.deleteProduct(product.id) },
+                        onPublish = { viewModel.publishProduct(product.id) }
                     )
                 }
             }
@@ -150,7 +158,8 @@ fun SummaryCard(title: String, value: String, modifier: Modifier = Modifier) {
 fun ProductItem(
     product: Product,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onPublish: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -212,7 +221,13 @@ fun ProductItem(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                ActionButton(icon = Icons.Default.Share, color = Color(0xFF2ECC71), onClick = {})
+                // Botón Publicar (Azul/Verde)
+                ActionButton(
+                    icon = Icons.Default.Share, 
+                    color = if (product.isPublished) Color(0xFF2ECC71).copy(alpha = 0.5f) else Color(0xFF3498DB), 
+                    onClick = onPublish,
+                    enabled = !product.isPublished
+                )
                 ActionButton(icon = Icons.Default.Edit, color = Color(0xFFE67E22), onClick = onEdit)
                 ActionButton(icon = Icons.Default.Delete, color = Color(0xFFE74C3C), onClick = onDelete)
             }
@@ -221,13 +236,20 @@ fun ProductItem(
 }
 
 @Composable
-fun ActionButton(icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color, onClick: () -> Unit) {
+fun ActionButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector, 
+    color: Color, 
+    onClick: () -> Unit,
+    enabled: Boolean = true
+) {
     FilledIconButton(
         onClick = onClick,
+        enabled = enabled,
         modifier = Modifier.size(32.dp),
         colors = IconButtonDefaults.filledIconButtonColors(
             containerColor = color,
-            contentColor = Color.White
+            contentColor = Color.White,
+            disabledContainerColor = color.copy(alpha = 0.5f)
         ),
         shape = RoundedCornerShape(8.dp)
     ) {

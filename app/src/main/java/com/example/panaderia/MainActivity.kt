@@ -15,6 +15,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.panaderia.presentation.admin_auth.AdminAuthScreen
 import com.example.panaderia.presentation.admin_auth.AdminAuthViewModel
+import com.example.panaderia.presentation.customer.CartScreen
+import com.example.panaderia.presentation.customer.CartViewModel
+import com.example.panaderia.presentation.customer.CustomerProductsScreen
+import com.example.panaderia.presentation.customer.CustomerProductsViewModel
+import com.example.panaderia.presentation.customer.ProductDetailScreen
+import com.example.panaderia.presentation.customer.ProductDetailViewModel
 import com.example.panaderia.presentation.login.LoginScreen
 import com.example.panaderia.presentation.login.LoginViewModel
 import com.example.panaderia.presentation.main_menu.MainMenuScreen
@@ -48,7 +54,7 @@ fun MainNavigation() {
 
             LaunchedEffect(isLoggedIn) {
                 if (isLoggedIn) {
-                    navController.navigate("main_menu") {
+                    navController.navigate("customer_products") {
                         popUpTo("login") { inclusive = true }
                     }
                 }
@@ -89,6 +95,52 @@ fun MainNavigation() {
                 }
             )
         }
+        composable("customer_products") {
+            val viewModel: CustomerProductsViewModel = hiltViewModel()
+            CustomerProductsScreen(
+                viewModel = viewModel,
+                onNavigateToCart = {
+                    navController.navigate("cart")
+                },
+                onNavigateToDetail = { productId ->
+                    navController.navigate("product_detail/$productId")
+                },
+                onLogout = {
+                    navController.navigate("login") {
+                        popUpTo("customer_products") { inclusive = true }
+                    }
+                }
+            )
+        }
+        composable(
+            route = "product_detail/{productId}",
+            arguments = listOf(navArgument("productId") { type = NavType.StringType })
+        ) {
+            val viewModel: ProductDetailViewModel = hiltViewModel()
+            ProductDetailScreen(
+                viewModel = viewModel,
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onAddedToCart = {
+                    navController.popBackStack() // Regresar a la lista después de agregar
+                }
+            )
+        }
+        composable("cart") {
+            val viewModel: CartViewModel = hiltViewModel()
+            CartScreen(
+                viewModel = viewModel,
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onCheckoutSuccess = {
+                    navController.navigate("customer_products") {
+                        popUpTo("customer_products") { inclusive = true }
+                    }
+                }
+            )
+        }
         composable("main_menu") {
             MainMenuScreen(
                 onNavigateToProductForm = {
@@ -96,6 +148,11 @@ fun MainNavigation() {
                 },
                 onNavigateToList = {
                     navController.navigate("product_list")
+                },
+                onLogout = {
+                    navController.navigate("login") {
+                        popUpTo("main_menu") { inclusive = true }
+                    }
                 }
             )
         }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Storefront
@@ -21,7 +22,8 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun MainMenuScreen(
     onNavigateToProductForm: () -> Unit,
-    onNavigateToList: () -> Unit
+    onNavigateToList: () -> Unit,
+    onLogout: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -33,37 +35,48 @@ fun MainMenuScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Icon(
-                imageVector = Icons.Default.Storefront,
-                contentDescription = null,
-                tint = Color(0xFFE67E22),
-                modifier = Modifier.size(40.dp)
-            )
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                Text(
-                    text = "Panadería Artesanal",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF0D1B2A)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = Icons.Default.Storefront,
+                    contentDescription = null,
+                    tint = Color(0xFFE67E22),
+                    modifier = Modifier.size(40.dp)
                 )
-                Text(
-                    text = "Pan fresco todos los días",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                Spacer(modifier = Modifier.width(12.dp))
+                Column {
+                    Text(
+                        text = "Panadería Artesanal",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF0D1B2A)
+                    )
+                    Text(
+                        text = "Panel de Administración",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
+            }
+            
+            IconButton(onClick = onLogout) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Logout,
+                    contentDescription = "Cerrar sesión",
+                    tint = Color.Red.copy(alpha = 0.7f)
                 )
             }
         }
 
-        Divider(color = Color.LightGray.copy(alpha = 0.5f))
+        HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
 
         Spacer(modifier = Modifier.height(24.dp))
 
         Text(
-            text = "Categorías",
-            style = MaterialTheme.typography.headlineMedium,
+            text = "Gestión de Productos",
+            style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF0D1B2A),
             modifier = Modifier.padding(horizontal = 16.dp)
