@@ -21,13 +21,16 @@ import com.example.panaderia.presentation.customer.CustomerProductsScreen
 import com.example.panaderia.presentation.customer.CustomerProductsViewModel
 import com.example.panaderia.presentation.customer.ProductDetailScreen
 import com.example.panaderia.presentation.customer.ProductDetailViewModel
-import com.example.panaderia.presentation.login.LoginScreen
+import com.example.panaderia.presentation.login.CustomerLoginScreen
+import com.example.panaderia.presentation.login.EmployeeLoginScreen
 import com.example.panaderia.presentation.login.LoginViewModel
 import com.example.panaderia.presentation.main_menu.MainMenuScreen
+import com.example.panaderia.presentation.main_menu.MainMenuViewModel
 import com.example.panaderia.presentation.product_form.ProductFormScreen
 import com.example.panaderia.presentation.product_form.ProductFormViewModel
 import com.example.panaderia.presentation.product_list.ProductListScreen
 import com.example.panaderia.presentation.product_list.ProductListViewModel
+import com.example.panaderia.presentation.register.EmployeeRegisterScreen
 import com.example.panaderia.presentation.register.RegisterScreen
 import com.example.panaderia.presentation.register.RegisterViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -47,30 +50,73 @@ class MainActivity : FragmentActivity() {
 fun MainNavigation() {
     val navController = rememberNavController()
     
-    NavHost(navController = navController, startDestination = "login") {
-        composable("login") {
+    NavHost(navController = navController, startDestination = "customer_login") {
+        
+        composable("customer_login") {
             val viewModel: LoginViewModel = hiltViewModel()
             val isLoggedIn by viewModel.isLoggedIn.collectAsState()
 
             LaunchedEffect(isLoggedIn) {
                 if (isLoggedIn) {
                     navController.navigate("customer_products") {
-                        popUpTo("login") { inclusive = true }
+                        popUpTo("customer_login") { inclusive = true }
                     }
                 }
             }
 
-            LoginScreen(
+            CustomerLoginScreen(
                 viewModel = viewModel,
                 onNavigateToRegister = {
-                    navController.navigate("register")
+                    navController.navigate("customer_register")
                 },
-                onNavigateToAdminAuth = {
-                    navController.navigate("admin_auth")
+                onNavigateToEmployeeLogin = {
+                    navController.navigate("employee_login")
                 }
             )
         }
-        composable("register") {
+
+        composable("employee_login") {
+            val viewModel: LoginViewModel = hiltViewModel()
+            val isLoggedIn by viewModel.isLoggedIn.collectAsState()
+
+            LaunchedEffect(isLoggedIn) {
+                if (isLoggedIn) {
+                    navController.navigate("main_menu/false") {
+                        popUpTo("employee_login") { inclusive = true }
+                    }
+                }
+            }
+
+            EmployeeLoginScreen(
+                viewModel = viewModel,
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onNavigateToAdminAuth = {
+                    navController.navigate("admin_auth")
+                },
+                onNavigateToEmployeeRegister = {
+                    navController.navigate("employee_register")
+                }
+            )
+        }
+
+        composable("admin_auth") {
+            val viewModel: AdminAuthViewModel = hiltViewModel()
+            AdminAuthScreen(
+                viewModel = viewModel,
+                onNavigateToHome = {
+                    navController.navigate("main_menu/true") {
+                        popUpTo("customer_login") { inclusive = true }
+                    }
+                },
+                onNavigateBackToLogin = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable("customer_register") {
             val viewModel: RegisterViewModel = hiltViewModel()
             RegisterScreen(
                 viewModel = viewModel,
@@ -79,22 +125,17 @@ fun MainNavigation() {
                 }
             )
         }
-        composable("admin_auth") {
-            val viewModel: AdminAuthViewModel = hiltViewModel()
-            AdminAuthScreen(
+
+        composable("employee_register") {
+            val viewModel: RegisterViewModel = hiltViewModel()
+            EmployeeRegisterScreen(
                 viewModel = viewModel,
-                onNavigateToHome = {
-                    navController.navigate("main_menu") {
-                        popUpTo("login") { inclusive = true }
-                    }
-                },
-                onNavigateBackToLogin = {
-                    navController.navigate("login") {
-                        popUpTo("login") { inclusive = true }
-                    }
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }
+
         composable("customer_products") {
             val viewModel: CustomerProductsViewModel = hiltViewModel()
             CustomerProductsScreen(
@@ -106,12 +147,13 @@ fun MainNavigation() {
                     navController.navigate("product_detail/$productId")
                 },
                 onLogout = {
-                    navController.navigate("login") {
+                    navController.navigate("customer_login") {
                         popUpTo("customer_products") { inclusive = true }
                     }
                 }
             )
         }
+
         composable(
             route = "product_detail/{productId}",
             arguments = listOf(navArgument("productId") { type = NavType.StringType })
@@ -123,10 +165,11 @@ fun MainNavigation() {
                     navController.popBackStack()
                 },
                 onAddedToCart = {
-                    navController.popBackStack() // Regresar a la lista después de agregar
+                    navController.popBackStack()
                 }
             )
         }
+
         composable("cart") {
             val viewModel: CartViewModel = hiltViewModel()
             CartScreen(
@@ -141,8 +184,16 @@ fun MainNavigation() {
                 }
             )
         }
-        composable("main_menu") {
+
+        composable(
+            route = "main_menu/{isAdmin}",
+            arguments = listOf(navArgument("isAdmin") { type = NavType.BoolType })
+        ) { backStackEntry ->
+            val isAdmin = backStackEntry.arguments?.getBoolean("isAdmin") ?: false
+            val viewModel: MainMenuViewModel = hiltViewModel()
             MainMenuScreen(
+                isAdmin = isAdmin,
+                viewModel = viewModel,
                 onNavigateToProductForm = {
                     navController.navigate("product_form")
                 },
@@ -150,12 +201,13 @@ fun MainNavigation() {
                     navController.navigate("product_list")
                 },
                 onLogout = {
-                    navController.navigate("login") {
-                        popUpTo("main_menu") { inclusive = true }
+                    navController.navigate("customer_login") {
+                        popUpTo("main_menu/{isAdmin}") { inclusive = true }
                     }
                 }
             )
         }
+
         composable(
             route = "product_form?productId={productId}",
             arguments = listOf(
@@ -174,6 +226,7 @@ fun MainNavigation() {
                 }
             )
         }
+
         composable("product_list") {
             val viewModel: ProductListViewModel = hiltViewModel()
             ProductListScreen(

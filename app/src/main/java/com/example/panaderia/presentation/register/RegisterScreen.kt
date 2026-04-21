@@ -72,7 +72,7 @@ fun RegisterScreen(
                     TextField(
                         value = viewModel.username,
                         onValueChange = { viewModel.username = it },
-                        placeholder = { Text("Admin/Empleado") },
+                        placeholder = { Text("Nombre de usuario") },
                         leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                         trailingIcon = { Icon(Icons.Default.Visibility, contentDescription = null) },
                         modifier = Modifier.fillMaxWidth(),

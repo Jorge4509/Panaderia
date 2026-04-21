@@ -12,4 +12,7 @@ interface ProductRepository {
     suspend fun getProductById(id: String): Product?
     suspend fun publishProduct(id: String): Result<Unit>
     suspend fun checkout(sale: Sale): Result<Unit>
+    
+    // Estadísticas para el Admin
+    fun getSales(): Flow<List<Sale>>
 }
