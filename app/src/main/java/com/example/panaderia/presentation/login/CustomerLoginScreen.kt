@@ -16,65 +16,66 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun LoginScreen(
+fun CustomerLoginScreen(
     viewModel: LoginViewModel,
     onNavigateToRegister: () -> Unit,
-    onNavigateToAdminAuth: () -> Unit
+    onNavigateToEmployeeLogin: () -> Unit
 ) {
-    val orangeColor = Color(0xFFFF8C00)
-    val lightOrange = Color(0xFFFFF5E6)
-    val yellowField = Color(0xFFFFE082)
+    val orangeColor = Color(0xFFE67E22) // Naranja artesanal
+    val lightBeige = Color(0xFFFEF9E7)
+    val fieldColor = Color(0xFFFFF9C4).copy(alpha = 0.5f)
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
     ) {
-        // Franja superior naranja
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp)
-                .background(orangeColor)
-        )
-
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Panes tradicionales",
-                fontSize = 40.sp,
+                text = "Bienvenido a\nPanadería Artesanal",
+                fontSize = 32.sp,
                 fontStyle = FontStyle.Italic,
                 fontFamily = FontFamily.Serif,
-                color = Color.Black
+                color = Color(0xFF2D3436),
+                lineHeight = 38.sp,
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center
             )
             
             Spacer(modifier = Modifier.height(40.dp))
 
-            // Cuadro central de login
             Card(
                 modifier = Modifier
-                    .padding(horizontal = 32.dp)
+                    .padding(horizontal = 24.dp)
                     .fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = lightOrange),
-                elevation = CardDefaults.cardElevation(4.dp)
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = lightBeige),
+                elevation = CardDefaults.cardElevation(2.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    Text(
+                        text = "Área de Clientes",
+                        fontWeight = FontWeight.Bold,
+                        color = orangeColor,
+                        fontSize = 18.sp,
+                        modifier = Modifier.padding(bottom = 24.dp)
+                    )
+
                     TextField(
                         value = viewModel.username,
                         onValueChange = { viewModel.username = it },
-                        placeholder = { Text("Usuario") },
+                        placeholder = { Text("Usuario o Email") },
                         modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.colors(
-                            focusedContainerColor = yellowField,
-                            unfocusedContainerColor = yellowField,
-                            focusedIndicatorColor = Color.Transparent,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            focusedIndicatorColor = orangeColor,
                             unfocusedIndicatorColor = Color.Transparent
                         ),
                         shape = RoundedCornerShape(12.dp)
@@ -88,24 +89,15 @@ fun LoginScreen(
                         placeholder = { Text("Contraseña") },
                         modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.colors(
-                            focusedContainerColor = yellowField,
-                            unfocusedContainerColor = yellowField,
-                            focusedIndicatorColor = Color.Transparent,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            focusedIndicatorColor = orangeColor,
                             unfocusedIndicatorColor = Color.Transparent
                         ),
                         shape = RoundedCornerShape(12.dp)
                     )
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    
-                    Text(
-                        text = "¿Olvidaste tu contraseña?",
-                        fontSize = 12.sp,
-                        color = Color.Gray,
-                        modifier = Modifier.align(Alignment.End)
-                    )
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(32.dp))
                     
                     Button(
                         onClick = { viewModel.loginWithPassword() },
@@ -113,49 +105,38 @@ fun LoginScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
+                        shape = RoundedCornerShape(16.dp)
                     ) {
                         Text(
-                            text = "Acceder",
+                            text = "Entrar a comprar",
                             color = Color.White,
-                            fontSize = 20.sp,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
 
-                    // Texto clickable para Admin
-                    Text(
-                        text = "¿Iniciar sesión como admin?",
-                        modifier = Modifier
-                            .padding(top = 8.dp)
-                            .clickable { onNavigateToAdminAuth() },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
-                    )
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                    // Botón "¿Desea Registrarse?"
-                    TextButton(
-                        onClick = onNavigateToRegister,
-                        modifier = Modifier.padding(top = 4.dp)
-                    ) {
+                    TextButton(onClick = onNavigateToRegister) {
                         Text(
-                            text = "¿Desea Registrarse?",
+                            text = "¿No tienes cuenta? Regístrate aquí",
                             color = Color.Gray,
-                            fontSize = 12.sp
+                            fontSize = 14.sp
                         )
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Opción para ir al login de empleados/admin
+            Text(
+                text = "Acceso para Personal",
+                modifier = Modifier.clickable { onNavigateToEmployeeLogin() },
+                style = MaterialTheme.typography.bodyMedium,
+                color = orangeColor.copy(alpha = 0.7f),
+                fontWeight = FontWeight.Medium
+            )
         }
-        
-        // Franja inferior naranja
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp)
-                .align(Alignment.BottomCenter)
-                .background(orangeColor)
-        )
     }
 }

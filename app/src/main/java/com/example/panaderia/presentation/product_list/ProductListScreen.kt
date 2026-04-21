@@ -13,15 +13,14 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -35,8 +34,17 @@ fun ProductListScreen(
     onEditProduct: (String) -> Unit
 ) {
     val state by viewModel.state.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(state.message) {
+        state.message?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearMessage()
+        }
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text("Lista de productos", color = Color.White) },
@@ -72,7 +80,7 @@ fun ProductListScreen(
             // Cuadros de resumen
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 SummaryCard(
                     title = "Total de Productos",
@@ -96,7 +104,7 @@ fun ProductListScreen(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(24.dp))
                     .border(1.dp, Color(0xFFE67E22), RoundedCornerShape(24.dp)),
-                placeholder = { Text("Buscar por cliente o producto...", color = Color.Gray) },
+                placeholder = { Text("Buscar producto...", color = Color.Gray) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.Gray) },
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color(0xFFFEF9E7),
@@ -107,35 +115,20 @@ fun ProductListScreen(
                 singleLine = true
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Cabecera de tabla
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFFFEF9E7))
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text("Vista", modifier = Modifier.weight(1f), fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                Text("nombre", modifier = Modifier.weight(2f), fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                Text("Cantidad", modifier = Modifier.weight(1.5f), fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                Text("Precio", modifier = Modifier.weight(1.5f), fontWeight = FontWeight.Bold, fontSize = 12.sp)
-                Spacer(modifier = Modifier.width(80.dp)) // Espacio para botones
-            }
+            Spacer(modifier = Modifier.height(20.dp))
 
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .border(1.dp, Color(0xFFE67E22))
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(bottom = 16.dp)
             ) {
                 items(state.products) { product ->
                     ProductItem(
                         product = product,
                         onEdit = { onEditProduct(product.id) },
-                        onDelete = { viewModel.deleteProduct(product.id) }
+                        onDelete = { viewModel.deleteProduct(product.id) },
+                        onPublish = { viewModel.publishProduct(product.id) }
                     )
-                    HorizontalDivider(color = Color(0xFFE67E22).copy(alpha = 0.3f))
                 }
             }
         }
@@ -145,18 +138,18 @@ fun ProductListScreen(
 @Composable
 fun SummaryCard(title: String, value: String, modifier: Modifier = Modifier) {
     Card(
-        modifier = modifier.height(100.dp),
+        modifier = modifier.height(90.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF9E7)),
-        border = BorderStroke(1.dp, Color(0xFF3498DB)), // Borde azul como en la imagen
+        border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFF3498DB).copy(alpha = 0.5f)),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(8.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(title, textAlign = androidx.compose.ui.text.style.TextAlign.Center, fontSize = 14.sp)
-            Text(value, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+            Text(title, textAlign = androidx.compose.ui.text.style.TextAlign.Center, fontSize = 12.sp, lineHeight = 14.sp)
+            Text(value, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Color(0xFFE67E22))
         }
     }
 }
@@ -165,56 +158,105 @@ fun SummaryCard(title: String, value: String, modifier: Modifier = Modifier) {
 fun ProductItem(
     product: Product,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onPublish: () -> Unit
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFEF9E7).copy(alpha = 0.5f)),
+        shape = RoundedCornerShape(12.dp),
+        border = androidx.compose.foundation.BorderStroke(0.5.dp, Color.LightGray)
     ) {
-        // Miniatura
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .background(Color.LightGray)
-                .weight(1f)
-        ) {
-            if (product.imageUri != null) {
-                AsyncImage(
-                    model = product.imageUri,
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            }
-        }
-
-        Text(product.name, modifier = Modifier.weight(2f), fontSize = 12.sp)
-        Text(String.format("%.2f", product.quantity.toDouble()), modifier = Modifier.weight(1.5f), fontSize = 12.sp)
-        Text(String.format("%.2f", product.price), modifier = Modifier.weight(1.5f), fontSize = 12.sp)
-
         Row(
-            modifier = Modifier.width(90.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            ActionButton(icon = Icons.Default.Share, color = Color(0xFF2ECC71), onClick = {})
-            ActionButton(icon = Icons.Default.Edit, color = Color(0xFFE67E22), onClick = onEdit)
-            ActionButton(icon = Icons.Default.Delete, color = Color(0xFFE74C3C), onClick = onDelete)
+            // Imagen Fija (50dp) con esquinas redondeadas
+            AsyncImage(
+                model = product.imageUri,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(50.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.LightGray),
+                contentScale = ContentScale.Crop
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            // Contenido de Texto con peso 1f para empujar botones
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = product.name,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Cant: ${product.quantity}",
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "$${String.format("%.2f", product.price)}",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color(0xFFE67E22)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // Botones de Acción compactos
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Botón Publicar (Azul/Verde)
+                ActionButton(
+                    icon = Icons.Default.Share, 
+                    color = if (product.isPublished) Color(0xFF2ECC71).copy(alpha = 0.5f) else Color(0xFF3498DB), 
+                    onClick = onPublish,
+                    enabled = !product.isPublished
+                )
+                ActionButton(icon = Icons.Default.Edit, color = Color(0xFFE67E22), onClick = onEdit)
+                ActionButton(icon = Icons.Default.Delete, color = Color(0xFFE74C3C), onClick = onDelete)
+            }
         }
     }
 }
 
 @Composable
-fun ActionButton(icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color, onClick: () -> Unit) {
-    IconButton(
+fun ActionButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector, 
+    color: Color, 
+    onClick: () -> Unit,
+    enabled: Boolean = true
+) {
+    FilledIconButton(
         onClick = onClick,
-        modifier = Modifier
-            .size(26.dp)
-            .background(color, RoundedCornerShape(4.dp))
+        enabled = enabled,
+        modifier = Modifier.size(32.dp),
+        colors = IconButtonDefaults.filledIconButtonColors(
+            containerColor = color,
+            contentColor = Color.White,
+            disabledContainerColor = color.copy(alpha = 0.5f)
+        ),
+        shape = RoundedCornerShape(8.dp)
     ) {
-        Icon(icon, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            modifier = Modifier.size(16.dp)
+        )
     }
 }
-
-private fun BorderStroke(width: androidx.compose.ui.unit.Dp, color: Color) = androidx.compose.foundation.BorderStroke(width, color)

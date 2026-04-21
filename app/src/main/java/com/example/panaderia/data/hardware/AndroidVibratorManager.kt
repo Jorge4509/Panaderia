@@ -21,11 +21,19 @@ class AndroidVibratorManager @Inject constructor(
     }
 
     override fun vibrateSuccess() {
+        vibrate(100)
+    }
+
+    override fun vibrateLong() {
+        vibrate(500)
+    }
+
+    private fun vibrate(duration: Long) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            vibrator.vibrate(VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE))
+            vibrator.vibrate(VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE))
         } else {
             @Suppress("DEPRECATION")
-            vibrator.vibrate(100)
+            vibrator.vibrate(duration)
         }
     }
 }

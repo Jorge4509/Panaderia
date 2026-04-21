@@ -1,46 +1,106 @@
 package com.example.panaderia.data.repository
 
+import com.example.panaderia.data.remote.PanaderiaApi
 import com.example.panaderia.domain.model.Product
+import com.example.panaderia.domain.model.Sale
+import com.example.panaderia.domain.repository.ICustomerProductRepository
 import com.example.panaderia.domain.repository.ProductRepository
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ProductRepositoryImpl @Inject constructor() : ProductRepository {
-    
-    private val _products = MutableStateFlow<List<Product>>(emptyList())
+class ProductRepositoryImpl @Inject constructor(
+    private val api: PanaderiaApi
+) : ProductRepository, ICustomerProductRepository {
 
-    override fun getAllProducts(): Flow<List<Product>> = _products.asStateFlow()
+    override fun getAllProducts(): Flow<List<Product>> = flow {
+        try {
+            emit(api.getProducts())
+        } catch (e: Exception) {
+            emit(emptyList())
+        }
+    }
+
+    override fun getSales(): Flow<List<Sale>> = flow {
+        try {
+            emit(api.getSales())
+        } catch (e: Exception) {
+            emit(emptyList())
+        }
+    }
 
     override suspend fun saveProduct(product: Product): Result<Unit> {
-        val currentList = _products.value.toMutableList()
-        currentList.add(product)
-        _products.value = currentList
-        return Result.success(Unit)
+        return try {
+            api.saveProduct(product)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     override suspend fun deleteProduct(id: String): Result<Unit> {
-        val currentList = _products.value.toMutableList()
-        currentList.removeIf { it.id == id }
-        _products.value = currentList
-        return Result.success(Unit)
+        return try {
+            api.deleteProduct(id)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     override suspend fun updateProduct(product: Product): Result<Unit> {
-        val currentList = _products.value.toMutableList()
-        val index = currentList.indexOfFirst { it.id == product.id }
-        if (index != -1) {
-            currentList[index] = product
-            _products.value = currentList
+        return try {
+            api.updateProduct(product.id, product)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
         }
-        return Result.success(Unit)
     }
 
     override suspend fun getProductById(id: String): Product? {
-        return _products.value.find { it.id == id }
+        return try {
+            api.getProductById(id)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    override suspend fun publishProduct(id: String): Result<Unit> {
+        return try {
+            api.publishProduct(id)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun checkout(sale: Sale): Result<Unit> {
+        return try {
+            api.checkout(sale)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override fun getPublishedProducts(): Flow<List<Product>> = flow {
+        try {
+            val products = api.getProducts().filter { it.isPublished }
+            emit(products)
+        } catch (e: Exception) {
+            emit(emptyList())
+        }
+    }
+
+    override fun getPublishedProductsByCategory(category: String): Flow<List<Product>> = flow {
+        try {
+            val products = api.getProducts().filter { 
+                it.isPublished && (category == "Todos" || it.category == category) 
+            }
+            emit(products)
+        } catch (e: Exception) {
+            emit(emptyList())
+        }
     }
 }

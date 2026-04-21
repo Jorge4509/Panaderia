@@ -5,8 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.panaderia.domain.IUserRepository
-import com.example.panaderia.domain.UserEntity
+import com.example.panaderia.domain.repository.IUserRepository
+import com.example.panaderia.domain.model.UserEntity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject

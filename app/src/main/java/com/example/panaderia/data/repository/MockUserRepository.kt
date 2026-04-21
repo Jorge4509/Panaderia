@@ -1,4 +1,4 @@
-package com.example.panaderia.data
+package com.example.panaderia.data.repository
 
 import com.example.panaderia.domain.repository.IUserRepository
 import com.example.panaderia.domain.model.UserEntity

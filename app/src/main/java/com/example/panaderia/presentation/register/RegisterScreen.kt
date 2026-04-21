@@ -22,8 +22,7 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun RegisterScreen(
     viewModel: RegisterViewModel,
-    onNavigateToLogin: () -> Unit,
-    onNavigateToAdminAuth: () -> Unit
+    onNavigateToLogin: () -> Unit
 ) {
     val orangeColor = Color(0xFFFF8C00)
     val lightOrange = Color(0xFFFFF5E6)
@@ -73,7 +72,7 @@ fun RegisterScreen(
                     TextField(
                         value = viewModel.username,
                         onValueChange = { viewModel.username = it },
-                        placeholder = { Text("Admin/Empleado") },
+                        placeholder = { Text("Nombre de usuario") },
                         leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
                         trailingIcon = { Icon(Icons.Default.Visibility, contentDescription = null) },
                         modifier = Modifier.fillMaxWidth(),
@@ -103,19 +102,8 @@ fun RegisterScreen(
                         ),
                         shape = RoundedCornerShape(12.dp)
                     )
-
-                    TextButton(
-                        onClick = onNavigateToAdminAuth,
-                        modifier = Modifier.align(Alignment.End)
-                    ) {
-                        Text(
-                            text = "¿Iniciar sesión como admin?",
-                            color = Color.Gray,
-                            fontSize = 10.sp
-                        )
-                    }
                     
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(24.dp))
                     
                     Button(
                         onClick = { viewModel.onRegisterClick() },
