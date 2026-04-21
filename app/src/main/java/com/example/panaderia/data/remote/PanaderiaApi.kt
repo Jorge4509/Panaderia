@@ -2,9 +2,16 @@ package com.example.panaderia.data.remote
 
 import com.example.panaderia.domain.model.Product
 import com.example.panaderia.domain.model.Sale
+import com.example.panaderia.domain.model.UserEntity
 import retrofit2.http.*
 
 interface PanaderiaApi {
+
+    @POST("auth/login")
+    suspend fun login(@Body user: UserEntity): Result<Boolean>
+
+    @POST("auth/register")
+    suspend fun register(@Body user: UserEntity): Result<Boolean>
 
     @GET("products")
     suspend fun getProducts(): List<Product>
@@ -31,6 +38,6 @@ interface PanaderiaApi {
     suspend fun checkout(@Body sale: Sale)
 
     companion object {
-        const val BASE_URL = "https://your-api-url.com/" // Replace with actual URL
+        const val BASE_URL = "https://your-api-url.com/"
     }
 }

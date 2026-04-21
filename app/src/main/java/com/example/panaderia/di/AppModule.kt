@@ -1,10 +1,10 @@
 package com.example.panaderia.di
 
 import android.content.Context
-import com.example.panaderia.data.repository.MockUserRepository
 import com.example.panaderia.data.hardware.*
 import com.example.panaderia.data.repository.CartRepositoryImpl
 import com.example.panaderia.data.repository.ProductRepositoryImpl
+import com.example.panaderia.data.repository.UserRepositoryImpl
 import com.example.panaderia.domain.repository.IUserRepository
 import com.example.panaderia.domain.hardware.*
 import com.example.panaderia.domain.repository.ICartRepository
@@ -65,7 +65,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUserRepository(mockUserRepository: MockUserRepository): IUserRepository = mockUserRepository
+    fun provideUserRepository(impl: UserRepositoryImpl): IUserRepository = impl
 
     @Provides
     @Singleton
