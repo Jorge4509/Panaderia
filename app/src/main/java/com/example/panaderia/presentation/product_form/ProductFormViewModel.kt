@@ -23,7 +23,8 @@ data class ProductFormState(
     val category: String = "Artesanal",
     val imageUri: Uri? = null,
     val isLoading: Boolean = false,
-    val isSaved: Boolean = false
+    val isSaved: Boolean = false,
+    val error: String? = null
 )
 
 @HiltViewModel
@@ -50,10 +51,10 @@ class ProductFormViewModel @Inject constructor(
             if (product != null) {
                 _state.update { it.copy(
                     id = product.id,
-                    name = product.name,
-                    quantity = product.quantity.toString(),
-                    price = product.price.toString(),
-                    category = product.category,
+                    name = product.name ?: "",
+                    quantity = product.quantity?.toString() ?: "",
+                    price = product.price?.toString() ?: "",
+                    category = product.category ?: "Artesanal",
                     imageUri = product.imageUri?.let { Uri.parse(it) }
                 ) }
             }
@@ -61,20 +62,19 @@ class ProductFormViewModel @Inject constructor(
     }
 
     fun onNameChange(newName: String) {
-        _state.update { it.copy(name = newName) }
+        _state.update { it.copy(name = newName, error = null) }
     }
 
     fun onQuantityChange(newQuantity: String) {
-        _state.update { it.copy(quantity = newQuantity) }
+        _state.update { it.copy(quantity = newQuantity, error = null) }
     }
 
     fun onPriceChange(newPrice: String) {
-        _state.update { it.copy(price = newPrice) }
+        _state.update { it.copy(price = newPrice, error = null) }
     }
 
     fun onCategoryChange(newCategory: String) {
-        _state.update { it.copy(category = newCategory) }
-        // Vibración al seleccionar categoría como respuesta táctil
+        _state.update { it.copy(category = newCategory, error = null) }
         vibratorManager.vibrateSuccess()
     }
 
@@ -88,13 +88,15 @@ class ProductFormViewModel @Inject constructor(
 
     fun saveProduct() {
         val currentState = _state.value
-        if (currentState.name.isBlank()) return
+        if (currentState.name.isBlank()) {
+            _state.update { it.copy(error = "El nombre es obligatorio") }
+            return
+        }
 
-        // Ejecutar vibración antes de guardar
         vibratorManager.vibrateSuccess()
 
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
+            _state.update { it.copy(isLoading = true, error = null) }
             val product = Product(
                 id = currentState.id ?: java.util.UUID.randomUUID().toString(),
                 name = currentState.name,
@@ -112,6 +114,11 @@ class ProductFormViewModel @Inject constructor(
 
             result.onSuccess {
                 _state.update { it.copy(isLoading = false, isSaved = true) }
+            }.onFailure { e ->
+                _state.update { it.copy(
+                    isLoading = false, 
+                    error = "Error al conectar con la base de datos: ${e.localizedMessage}"
+                ) }
             }
         }
     }

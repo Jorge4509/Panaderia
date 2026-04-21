@@ -12,11 +12,11 @@ import java.util.UUID
 // Simulación de un DTO de Base de Datos
 data class ProductEntity(
     val id: String,
-    val name: String,
-    val quantity: Int,
-    val price: Double,
-    val category: String,
-    val description: String,
+    val name: String?,
+    val quantity: Int?,
+    val price: Double?,
+    val category: String?,
+    val description: String?,
     val isPublished: Boolean,
     val imageUri: String?
 )
@@ -24,11 +24,11 @@ data class ProductEntity(
 fun ProductEntity.toDomain(): Product {
     return Product(
         id = this.id,
-        name = this.name,
-        quantity = this.quantity,
-        price = this.price,
-        category = this.category,
-        description = this.description,
+        name = this.name ?: "Sin nombre",
+        quantity = this.quantity ?: 0,
+        price = this.price ?: 0.0,
+        category = this.category ?: "Sin categoría",
+        description = this.description ?: "Sin descripción",
         isPublished = this.isPublished,
         imageUri = this.imageUri
     )
@@ -37,11 +37,11 @@ fun ProductEntity.toDomain(): Product {
 fun Product.toEntity(): ProductEntity {
     return ProductEntity(
         id = this.id,
-        name = this.name,
-        quantity = this.quantity,
-        price = this.price,
-        category = this.category,
-        description = this.description,
+        name = this.name ?: "Sin nombre",
+        quantity = this.quantity ?: 0,
+        price = this.price ?: 0.0,
+        category = this.category ?: "Sin categoría",
+        description = this.description ?: "Sin descripción",
         isPublished = this.isPublished,
         imageUri = this.imageUri
     )

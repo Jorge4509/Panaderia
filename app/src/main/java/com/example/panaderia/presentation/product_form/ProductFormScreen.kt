@@ -84,11 +84,20 @@ fun ProductFormScreen(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Registro del producto",
+                text = "Datos del producto",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
+
+            if (state.error != null) {
+                Text(
+                    text = state.error!!,
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -207,10 +216,23 @@ fun ProductFormScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp),
+                        enabled = !state.isLoading,
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFA8E23)),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text("Registrar Venta", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                        if (state.isLoading) {
+                            CircularProgressIndicator(
+                                color = Color.White,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        } else {
+                            Text(
+                                text = if (state.id == null) "Agregar Producto" else "Guardar Cambios",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 18.sp
+                            )
+                        }
                     }
                 }
             }

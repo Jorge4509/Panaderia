@@ -12,10 +12,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,11 +33,58 @@ fun CartScreen(
     onCheckoutSuccess: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
+    var showCheckoutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.isOrderPlaced) {
         if (state.isOrderPlaced) {
             onCheckoutSuccess()
             viewModel.resetOrderState()
+        }
+    }
+
+    if (showCheckoutDialog) {
+        AlertDialog(
+            onDismissRequest = { if (!state.isLoading) showCheckoutDialog = false },
+            title = { Text("Confirmar Compra") },
+            text = { 
+                Column {
+                    Text("¿Estás seguro de que deseas finalizar tu compra por un total de $" + String.format(Locale.getDefault(), "%.2f", state.total) + "?")
+                    if (state.error != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(state.error!!, color = Color.Red, fontWeight = FontWeight.Bold)
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.checkout()
+                    },
+                    enabled = !state.isLoading,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE67E22))
+                ) {
+                    if (state.isLoading) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                    } else {
+                        Text("Confirmar")
+                    }
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showCheckoutDialog = false },
+                    enabled = !state.isLoading
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
+    // Cerrar diálogo si la orden se colocó con éxito
+    LaunchedEffect(state.isOrderPlaced) {
+        if (state.isOrderPlaced) {
+            showCheckoutDialog = false
         }
     }
 
@@ -150,16 +194,33 @@ fun CartScreen(
                                 color = Color(0xFFD35400)
                             )
                         }
-                        Spacer(modifier = Modifier.height(24.dp))
+                        
+                        if (state.error != null) {
+                            Text(
+                                text = state.error!!,
+                                color = Color.Red,
+                                modifier = Modifier.padding(vertical = 8.dp),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 14.sp
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
                         Button(
-                            onClick = { viewModel.checkout() },
+                            onClick = { showCheckoutDialog = true },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(56.dp),
+                            enabled = !state.isLoading,
                             shape = RoundedCornerShape(16.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE67E22))
                         ) {
-                            Text("Finalizar Compra", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            if (state.isLoading) {
+                                CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                            } else {
+                                Text("Finalizar Compra", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                            }
                         }
                     }
                 }
@@ -195,8 +256,8 @@ fun CartItemCard(
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
-                Text(item.product.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text("$" + String.format(Locale.getDefault(), "%.2f", item.product.price), color = Color(0xFFE67E22), fontWeight = FontWeight.Medium)
+                Text(item.product.name ?: "", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text("$" + String.format(Locale.getDefault(), "%.2f", item.product.price ?: 0.0), color = Color(0xFFE67E22), fontWeight = FontWeight.Medium)
                 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

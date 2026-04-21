@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.panaderia.domain.model.Product
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,12 +36,37 @@ fun ProductListScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    var productToDelete by remember { mutableStateOf<Product?>(null) }
 
     LaunchedEffect(state.message) {
         state.message?.let {
             snackbarHostState.showSnackbar(it)
             viewModel.clearMessage()
         }
+    }
+
+    if (productToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { productToDelete = null },
+            title = { Text("Eliminar Producto") },
+            text = { Text("¿Estás seguro de que deseas eliminar '${productToDelete?.name}'? Esta acción no se puede deshacer.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        productToDelete?.let { viewModel.deleteProduct(it.id) }
+                        productToDelete = null
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE74C3C))
+                ) {
+                    Text("Eliminar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { productToDelete = null }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -89,7 +115,7 @@ fun ProductListScreen(
                 )
                 SummaryCard(
                     title = "Costo Total",
-                    value = "${String.format("%.2f", state.totalCost)}$",
+                    value = String.format(Locale.getDefault(), "%.2f$", state.totalCost),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -126,7 +152,7 @@ fun ProductListScreen(
                     ProductItem(
                         product = product,
                         onEdit = { onEditProduct(product.id) },
-                        onDelete = { viewModel.deleteProduct(product.id) },
+                        onDelete = { productToDelete = product },
                         onPublish = { viewModel.publishProduct(product.id) }
                     )
                 }
@@ -192,7 +218,7 @@ fun ProductItem(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = product.name,
+                    text = product.name ?: "",
                     fontWeight = FontWeight.Bold,
                     fontSize = 14.sp,
                     maxLines = 1,
@@ -200,13 +226,13 @@ fun ProductItem(
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "Cant: ${product.quantity}",
+                        text = "Cant: ${product.quantity ?: 0}",
                         fontSize = 12.sp,
                         color = Color.Gray
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "$${String.format("%.2f", product.price)}",
+                        text = String.format(Locale.getDefault(), "$%.2f", product.price ?: 0.0),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFFE67E22)

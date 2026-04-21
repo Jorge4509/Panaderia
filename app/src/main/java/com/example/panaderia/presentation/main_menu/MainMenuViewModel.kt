@@ -32,7 +32,7 @@ class MainMenuViewModel @Inject constructor(
             val productCounts = mutableMapOf<String, Int>()
             sales.forEach { sale ->
                 sale.products.forEach { cartItem ->
-                    val name = cartItem.product.name
+                    val name = cartItem.product.name ?: "Sin nombre"
                     productCounts[name] = productCounts.getOrDefault(name, 0) + cartItem.quantity
                 }
             }

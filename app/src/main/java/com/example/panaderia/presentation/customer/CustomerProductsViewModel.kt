@@ -39,7 +39,7 @@ class CustomerProductsViewModel @Inject constructor(
         val filteredProducts = if (query.isBlank()) {
             products
         } else {
-            products.filter { it.name.contains(query, ignoreCase = true) }
+            products.filter { it.name?.contains(query, ignoreCase = true) == true }
         }
 
         CustomerProductsState(

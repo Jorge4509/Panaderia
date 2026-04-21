@@ -11,11 +11,13 @@ import com.example.panaderia.domain.repository.ICartRepository
 import com.example.panaderia.domain.repository.ICustomerProductRepository
 import com.example.panaderia.domain.repository.ProductRepository
 import com.example.panaderia.data.remote.PanaderiaApi
+import com.example.panaderia.data.remote.TokenManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -28,8 +30,26 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient {
+    fun provideTokenManager(@ApplicationContext context: Context): TokenManager {
+        return TokenManager(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(tokenManager: TokenManager): OkHttpClient {
+        val authInterceptor = Interceptor { chain ->
+            val token = tokenManager.getToken()
+            val request = chain.request().newBuilder()
+            
+            if (token != null) {
+                request.addHeader("Authorization", "Bearer $token")
+            }
+            
+            chain.proceed(request.build())
+        }
+
         return OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
             .addInterceptor(HttpLoggingInterceptor().apply {
                 level = HttpLoggingInterceptor.Level.BODY
             })

@@ -77,7 +77,7 @@ fun ProductDetailScreen(
                         shape = RoundedCornerShape(4.dp)
                     ) {
                         Text(
-                            text = product.category,
+                            text = product.category ?: "",
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                             color = Color(0xFFE67E22),
                             fontSize = 12.sp,
@@ -88,7 +88,7 @@ fun ProductDetailScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = product.name,
+                        text = product.name ?: "",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -103,7 +103,7 @@ fun ProductDetailScreen(
                     }
 
                     Text(
-                        text = product.description,
+                        text = product.description ?: "",
                         color = Color.Gray,
                         lineHeight = 20.sp
                     )
@@ -121,7 +121,7 @@ fun ProductDetailScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Text(
-                        text = "$" + String.format(Locale.getDefault(), "%.2f", product.price),
+                        text = "$" + String.format(Locale.getDefault(), "%.2f", product.price ?: 0.0),
                         fontSize = 32.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = Color(0xFFD35400)

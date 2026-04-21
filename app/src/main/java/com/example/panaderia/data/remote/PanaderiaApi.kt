@@ -1,43 +1,54 @@
 package com.example.panaderia.data.remote
 
+import com.example.panaderia.data.remote.dto.*
 import com.example.panaderia.domain.model.Product
 import com.example.panaderia.domain.model.Sale
 import com.example.panaderia.domain.model.UserEntity
+import retrofit2.Response
 import retrofit2.http.*
 
 interface PanaderiaApi {
 
     @POST("auth/login")
-    suspend fun login(@Body user: UserEntity): Result<Boolean>
+    suspend fun login(@Body user: UserEntity): Response<LoginResponseDto>
 
     @POST("auth/register")
-    suspend fun register(@Body user: UserEntity): Result<Boolean>
+    suspend fun register(@Body user: UserEntity): Response<UserDto>
 
-    @GET("products")
-    suspend fun getProducts(): List<Product>
+    @POST("auth/admin-login")
+    suspend fun adminLogin(@Body user: UserEntity): Response<LoginResponseDto>
 
-    @GET("products/{id}")
-    suspend fun getProductById(@Path("id") id: String): Product
+    @GET("panes")
+    suspend fun getProducts(): List<ProductResponseDto>
 
-    @POST("products")
-    suspend fun saveProduct(@Body product: Product)
+    @GET("panes/publicados")
+    suspend fun getPublicados(): List<ProductResponseDto>
 
-    @PUT("products/{id}")
-    suspend fun updateProduct(@Path("id") id: String, @Body product: Product)
+    @GET("panes/{id}")
+    suspend fun getProductById(@Path("id") id: String): ProductResponseDto
 
-    @DELETE("products/{id}")
+    @POST("panes")
+    suspend fun saveProduct(@Body product: ProductRequestDto)
+
+    @PUT("panes/{id}")
+    suspend fun updateProduct(@Path("id") id: String, @Body product: ProductRequestDto)
+
+    @DELETE("panes/{id}")
     suspend fun deleteProduct(@Path("id") id: String)
 
-    @PATCH("products/{id}/publish")
+    @PATCH("panes/{id}/publish")
     suspend fun publishProduct(@Path("id") id: String)
 
     @GET("sales")
     suspend fun getSales(): List<Sale>
 
-    @POST("sales")
-    suspend fun checkout(@Body sale: Sale)
+    @POST("pedidos/checkout/{clienteId}")
+    suspend fun checkout(
+        @Path("clienteId") clienteId: String,
+        @Body sale: SaleRequestDto
+    )
 
     companion object {
-        const val BASE_URL = "https://your-api-url.com/"
+        const val BASE_URL = "http://35.153.159.34:8080/"
     }
 }

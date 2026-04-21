@@ -4,11 +4,11 @@ import java.util.UUID
 
 data class Product(
     val id: String = UUID.randomUUID().toString(),
-    val name: String,
-    val quantity: Int,
-    val price: Double,
-    val category: String = "Artesanal",
-    val description: String = "Pan artesanal recién horneado.",
+    val name: String? = "Sin nombre",
+    val quantity: Int? = 0,
+    val price: Double? = 0.0,
+    val category: String? = "Sin categoría",
+    val description: String? = "Sin descripción",
     val isPublished: Boolean = false,
     val imageUri: String? = null
 )

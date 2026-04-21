@@ -24,7 +24,7 @@ class CartRepositoryImpl @Inject constructor() : ICartRepository {
         .stateIn(GlobalScope, SharingStarted.Eagerly, 0)
 
     override val subtotal: StateFlow<Double> = _cartItems
-        .map { items -> items.sumOf { it.product.price * it.quantity } }
+        .map { items -> items.sumOf { (it.product.price ?: 0.0) * it.quantity } }
         .stateIn(GlobalScope, SharingStarted.Eagerly, 0.0)
 
     override fun addProduct(cartItem: CartItem) {

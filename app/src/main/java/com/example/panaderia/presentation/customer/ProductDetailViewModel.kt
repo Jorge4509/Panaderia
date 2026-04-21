@@ -50,7 +50,7 @@ class ProductDetailViewModel @Inject constructor(
                     _state.update { it.copy(
                         product = product,
                         isLoading = false,
-                        subtotal = product.price
+                        subtotal = product.price ?: 0.0
                     ) }
                 } else {
                     _state.update { it.copy(isLoading = false, error = "Producto no encontrado") }

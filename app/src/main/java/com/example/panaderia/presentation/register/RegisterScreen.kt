@@ -1,5 +1,6 @@
 package com.example.panaderia.presentation.register
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -27,6 +29,22 @@ fun RegisterScreen(
     val orangeColor = Color(0xFFFF8C00)
     val lightOrange = Color(0xFFFFF5E6)
     val yellowField = Color(0xFFFFE082)
+    val context = LocalContext.current
+
+    // Observar el estado de éxito del registro para mostrar el Toast
+    LaunchedEffect(viewModel.registrationSuccess) {
+        viewModel.registrationSuccess?.let { success ->
+            if (success) {
+                Toast.makeText(context, "¡Registro Exitoso! Bienvenido", Toast.LENGTH_LONG).show()
+                // Opcionalmente navegar al login después de un éxito
+                onNavigateToLogin()
+            } else {
+                Toast.makeText(context, "Error al registrar: El usuario podría ya existir", Toast.LENGTH_LONG).show()
+            }
+            // Resetear el estado para que no se repita el Toast al recomponer
+            viewModel.registrationSuccess = null
+        }
+    }
     
     Box(
         modifier = Modifier
@@ -74,7 +92,6 @@ fun RegisterScreen(
                         onValueChange = { viewModel.username = it },
                         placeholder = { Text("Nombre de usuario") },
                         leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
-                        trailingIcon = { Icon(Icons.Default.Visibility, contentDescription = null) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = yellowField,
@@ -92,7 +109,6 @@ fun RegisterScreen(
                         onValueChange = { viewModel.password = it },
                         placeholder = { Text("Contraseña") },
                         leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
-                        trailingIcon = { Icon(Icons.Default.VisibilityOff, contentDescription = null) },
                         modifier = Modifier.fillMaxWidth(),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = yellowField,

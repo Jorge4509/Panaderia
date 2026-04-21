@@ -26,7 +26,6 @@ class ProductListViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
-    val searchQuery = _searchQuery.asStateFlow()
 
     private val _message = MutableStateFlow<String?>(null)
 
@@ -38,14 +37,14 @@ class ProductListViewModel @Inject constructor(
         val filteredProducts = if (query.isBlank()) {
             products
         } else {
-            products.filter { it.name.contains(query, ignoreCase = true) }
+            products.filter { it.name?.contains(query, ignoreCase = true) == true }
         }
 
         ProductListState(
             products = filteredProducts,
             searchQuery = query,
-            totalProducts = products.sumOf { it.quantity },
-            totalCost = products.sumOf { it.price * it.quantity },
+            totalProducts = products.sumOf { it.quantity ?: 0 },
+            totalCost = products.sumOf { (it.price ?: 0.0) * (it.quantity ?: 0) },
             message = msg
         )
     }

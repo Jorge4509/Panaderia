@@ -9,4 +9,9 @@ class MockUserRepository @Inject constructor() : IUserRepository {
         // Simulación de registro exitoso
         return true
     }
+
+    override suspend fun loginUser(user: UserEntity): Boolean {
+        // Simulación de login exitoso
+        return true
+    }
 }

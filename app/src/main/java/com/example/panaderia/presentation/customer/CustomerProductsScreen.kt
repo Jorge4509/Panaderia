@@ -199,7 +199,7 @@ fun CustomerProductsScreen(
                     CustomerProductCard(
                         product = product,
                         onAddToCart = { 
-                            if (product.quantity > 0) {
+                            if ((product.quantity ?: 0) > 0) {
                                 onNavigateToDetail(product.id)
                             }
                         }
@@ -215,7 +215,7 @@ fun CustomerProductCard(
     product: Product,
     onAddToCart: () -> Unit
 ) {
-    val isOutOfStock = product.quantity <= 0
+    val isOutOfStock = (product.quantity ?: 0) <= 0
 
     Card(
         modifier = Modifier.fillMaxWidth().clickable(enabled = !isOutOfStock) { onAddToCart() },
@@ -268,7 +268,7 @@ fun CustomerProductCard(
                     verticalAlignment = Alignment.Top
                 ) {
                     Text(
-                        text = product.name,
+                        text = product.name ?: "Sin nombre",
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
                         color = if (isOutOfStock) Color.Gray else Color(0xFF2D3436),
@@ -290,7 +290,7 @@ fun CustomerProductCard(
                     modifier = Modifier.padding(vertical = 4.dp)
                 ) {
                     Text(
-                        text = product.category,
+                        text = product.category ?: "Sin categoría",
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                         fontSize = 10.sp,
                         color = if (isOutOfStock) Color.Gray else Color(0xFFD35400),
@@ -299,7 +299,7 @@ fun CustomerProductCard(
                 }
 
                 Text(
-                    text = product.description,
+                    text = product.description ?: "Sin descripción",
                     fontSize = 12.sp,
                     color = Color.Gray,
                     maxLines = 2,
@@ -316,7 +316,7 @@ fun CustomerProductCard(
                 ) {
                     Column {
                         Text(
-                            text = "$${String.format("%.2f", product.price)}",
+                            text = "$${String.format("%.2f", product.price ?: 0.0)}",
                             fontSize = 20.sp,
                             fontWeight = FontWeight.ExtraBold,
                             color = if (isOutOfStock) Color.Gray else Color(0xFFD35400)
